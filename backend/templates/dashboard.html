@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}{{ t.dashboard }}{% endblock %}
+{% block content %}
+<h2 class="text-center mb-4">{{ t.dashboard }}</h2>
+
+<!-- Первый ряд (3 блока) -->
+<div class="row">
+  <div class="col-md-4 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{ t.capital_overview }}</h5>
+        <p class="card-text">{{ metrics.capital_overview }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{ t.total_trades }}</h5>
+        <p class="card-text">{{ metrics.total_trades }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{ t.current_balance }}</h5>
+        <p class="card-text">{{ metrics.current_balance }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Второй ряд (3 блока) -->
+<div class="row">
+  <div class="col-md-4 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{ t.total_losses }}</h5>
+        <p class="card-text">{{ metrics.total_losses }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{ t.total_wins }}</h5>
+        <p class="card-text">{{ metrics.total_wins }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{ t.diagram_capital }}</h5>
+        <p class="card-text">[Diagram placeholder]</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Таблица сделок -->
+<div class="card mb-4">
+  <div class="card-header">
+    {{ t.trade_history }}
+  </div>
+  <div class="card-body">
+    <table class="table table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th>{{ t.date }}</th>
+          <th>{{ t.currency_pair }}</th>
+          <th>{{ t.win_loss }}</th>
+          <th>{{ t.current_capital }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for trade in trades %}
+        <tr>
+          <td>{{ trade.Date }}</td>
+          <td>{{ trade.Currency_pair }}</td>
+          <td>{{ trade.WIN_LOSS }}</td>
+          <td>{{ trade.Current_capital }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Автоматические сделки из API -->
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">{{ t.auto_trades }}</h5>
+    <p>[здесь можно вывести автоматическую выгрузку сделок из биржи]</p>
+  </div>
+</div>
+{% endblock %}
