@@ -4,14 +4,15 @@ import os
 import logging
 from dotenv import load_dotenv
 
-# Важно! Импортируем Client из pybitget.client
-from pybitget.client import Client
+# Импортируем BitgetFuturesClient из нашего пакета
+from python_bitget.bitget_client import BitgetFuturesClient
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 load_dotenv()
 
-app = FastAPI()
+app = FastAPI(title="Bitget Futures API")
+
 
 @app.get("/get_balance")
 def get_balance(
@@ -20,7 +21,7 @@ def get_balance(
     secret_key: Optional[str] = None,
     passphrase: Optional[str] = None
 ):
-    # Если параметры не переданы через query, берем из переменных окружения
+    # Если параметры не переданы через запрос, берем их из переменных окружения
     if not api_key:
         api_key = os.getenv("BITGET_API_KEY")
     if not secret_key:
@@ -30,16 +31,36 @@ def get_balance(
 
     if not api_key or not secret_key or not passphrase:
         logger.error("API ключи Bitget или passphrase не установлены")
-        raise HTTPException(status_code=500, detail="Отсутствуют API ключи Bitget или passphrase")
+        raise HTTPException(
+            status_code=500, detail="Отсутствуют API ключи Bitget или passphrase")
 
     try:
-        # Создаем экземпляр клиента
-        client = Client(api_key, secret_key, passphrase)
-        # Пример вызова метода для получения баланса:
-        # Проверяйте, какой метод реально возвращает баланс.
-        # Здесь, например, mix_get_accounts(...) для USDT-маржинальных контрактов.
-        balance_info = client.mix_get_accounts(productType="umcbl")
-        return balance_info
+        # Создаем экземпляр клиента для фьючерсного API
+        client = BitgetFuturesClient(
+            api_key, secret_key, passphrase, debug=True)
+        # Получаем информацию о счёте
+        account_info = client.get_account_info(product_type="umcbl")
+
+        # Предположим, что нужные данные лежат в account_info["data"]
+        data = account_info.get("data", [])
+
+        # Составляем список только с нужными полями
+        filtered_data = []
+        for item in data:
+            filtered_data.append({
+                "equity": item.get("equity"),
+                "usdtEquity": item.get("usdtEquity"),
+                "btcEquity": item.get("btcEquity"),
+                "unrealizedPL": item.get("unrealizedPL"),
+            })
+
+        return filtered_data
+
     except Exception as e:
         logger.error(f"Ошибка обращения к API Bitget: {e}")
         raise HTTPException(status_code=500, detail=f"Ошибка API Bitget: {e}")
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
